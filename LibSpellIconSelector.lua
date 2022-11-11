@@ -8,7 +8,7 @@ local frame
 local allSpells = nil
 local dataProviderTable
 local filteredSpells = {}
-local selectedSpellID
+local selectedIconId
 local onApplyF
 local deduplicate
 
@@ -26,6 +26,16 @@ local function deduplicateIcons(t)
 		end
 	end
 	return deduplicatedTable
+end
+
+local function findSpellByIconId(t, iconId)
+	for i = 1, #t do
+		local spell = t[i]
+		local spellIcon = spell.icon
+		if spellIcon == iconId then
+			return spell
+		end
+	end
 end
 
 local function parseSpellInfo(spellId)
@@ -51,6 +61,14 @@ local function fetchallSpells()
       end
    until notFound > 500000
    return spells
+end
+
+local function findSelectionIndexByIconId(iconId)
+	for i = 1, #dataProviderTable do
+		if iconId == dataProviderTable[i].icon then
+			return i
+		end
+	end
 end
 
 local function findSelectionIndexBySpellID(spellId)
@@ -111,8 +129,8 @@ end
 
 function iconSelectorFrameMixin:Update()
 	-- Determine whether we're selecting a new icon or we are changing one
-	if selectedSpellID then
-		local selectionIndex = findSelectionIndexBySpellID(selectedSpellID)
+	if selectedIconId then
+		local selectionIndex = findSelectionIndexByIconId(selectedIconId)
 		if selectionIndex then
 			self.IconSelector:SetSelectedIndex(selectionIndex);
 			self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(dataProviderTable[selectionIndex].icon);
@@ -198,8 +216,8 @@ end
 
 
 
-function LibSpellIconSelector:Show(selectedSpellId, onApply)
-	selectedSpellID = selectedSpellId
+function LibSpellIconSelector:Show(iconId, onApply)
+	selectedIconId = iconId
 	onApplyF = onApply
 	if not frame then
 		if DoesTemplateExist("IconSelectorPopupFrameTemplate") then
@@ -217,11 +235,11 @@ function LibSpellIconSelector:Show(selectedSpellId, onApply)
 		frame.BorderBox.DedupCheckbox:SetSize(25, 25)
 		frame.BorderBox.DedupCheckbox:SetPoint("BOTTOMLEFT", 10, 10)
 		frame.BorderBox.DedupCheckbox.Text:SetText("don't show duplicate icons")
-		frame.BorderBox.DedupCheckbox:SetScript("OnClick", function(self) 
+		frame.BorderBox.DedupCheckbox:SetScript("OnClick", function(self)
 			deduplicate = self:GetChecked()
 			frame:RefreshIconDataProvider()
 		end)
-		
+
 		local function IconButtonInitializer(button, selectionIndex, icon)
 			button.OnEnter = function(self)
 				local selectionIndex = self:GetSelectionIndex()
