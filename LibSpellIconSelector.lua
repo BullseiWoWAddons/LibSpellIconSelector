@@ -10,8 +10,23 @@ local dataProviderTable
 local filteredSpells = {}
 local selectedSpellID
 local onApplyF
+local deduplicate
 
 local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or BackportedIconSelectorPopupFrameTemplateMixin
+
+local function deduplicateIcons(t)
+	local foundIcons = {}
+	local deduplicatedTable = {}
+	for i = 1, #t do
+		local spell = t[i]
+		local spellIcon = spell.icon
+		if not foundIcons[spellIcon] then
+			table.insert(deduplicatedTable, spell)
+			foundIcons[spellIcon] = true
+		end
+	end
+	return deduplicatedTable
+end
 
 local function parseSpellInfo(spellId)
    local name, rank, icon = GetSpellInfo(spellId)
@@ -77,6 +92,10 @@ function iconSelectorFrameMixin:RefreshIconDataProvider(inputText)
 	else
 		dataProviderTable = allSpells
 	end
+	if deduplicate then
+		dataProviderTable = deduplicateIcons(dataProviderTable)
+	end
+
 	self.iconDataProvider = CreateIndexRangeDataProvider(#dataProviderTable)
 	self:Update()
 	--view:SetDataProvider(dataProvider)
@@ -191,11 +210,18 @@ function LibSpellIconSelector:Show(selectedSpellId, onApply)
 		end
 
 		frame:Hide()
-		frame.BorderBox.EditBoxHeaderText:SetText("filter by spell id or name")
 		Mixin(frame, iconSelectorFrameMixin)
 
-
-
+		frame.BorderBox.EditBoxHeaderText:SetText("filter by spell id or name")
+		frame.BorderBox.DedupCheckbox = CreateFrame("CheckButton", nil, frame.BorderBox, "UICheckButtonTemplate")
+		frame.BorderBox.DedupCheckbox:SetSize(25, 25)
+		frame.BorderBox.DedupCheckbox:SetPoint("BOTTOMLEFT", 10, 10)
+		frame.BorderBox.DedupCheckbox.Text:SetText("don't show duplicate icons")
+		frame.BorderBox.DedupCheckbox:SetScript("OnClick", function(self) 
+			deduplicate = self:GetChecked()
+			frame:RefreshIconDataProvider()
+		end)
+		
 		local function IconButtonInitializer(button, selectionIndex, icon)
 			button.OnEnter = function(self)
 				local selectionIndex = self:GetSelectionIndex()
@@ -248,6 +274,8 @@ function LibSpellIconSelector:Show(selectedSpellId, onApply)
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER")
 	end
+	frame.BorderBox.DedupCheckbox:SetChecked(true)
+	deduplicate = true
 	frame.BorderBox.IconSelectorEditBox:SetText("")
 	frame:Show()
 	return frame
