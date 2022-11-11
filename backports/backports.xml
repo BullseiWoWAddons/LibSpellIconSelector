@@ -5,6 +5,7 @@
 	<Script file="Blizzard_SelectorUI.lua"/> <!-- defines SelectorMixin, SelectorButtonMixin-->
 	<Script file="SelectedIconButtonMixin.lua"/>	
 	<Script file="IconSelectorEditBoxMixin.lua"/>	
+	<Script file="locales.lua"/>	
 
 	<Frame name="BackportedSelectionFrameTemplate" inherits="NineSlicePanelTemplate" virtual="true">
 		<KeyValues>
