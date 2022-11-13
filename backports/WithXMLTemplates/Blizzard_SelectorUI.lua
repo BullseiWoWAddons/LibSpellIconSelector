@@ -98,7 +98,6 @@ end
 function BackportedSelectorMixin:UpdateSelections()
 end
 
-
 BackportedSelectorButtonMixin = {};
 
 function BackportedSelectorButtonMixin:Init(selectorFrame)
@@ -137,3 +136,5 @@ end
 function BackportedSelectorButtonMixin:GetSelectorFrame()
 	return self.selectorFrame;
 end
+
+

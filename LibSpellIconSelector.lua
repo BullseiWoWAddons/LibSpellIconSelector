@@ -1,3 +1,6 @@
+local AddonName, Data = ...
+
+
 local MAJOR, MINOR = "LibSpellIconSelector", 0
 local LibSpellIconSelector = LibStub:NewLibrary(MAJOR, MINOR)
 
@@ -12,7 +15,7 @@ local selectedIconId
 local onApplyF
 local deduplicate
 
-local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or BackportedIconSelectorPopupFrameTemplateMixin
+local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or BackportedIconSelectorPopupFrameTemplateMixin or Data.Mixins.BackportedIconSelectorPopupFrameTemplateMixin
 
 local function deduplicateIcons(t)
 	local foundIcons = {}
@@ -86,7 +89,6 @@ function iconSelectorFrameMixin:OnShow()
 	allSpells = allSpells or fetchallSpells()
 	IconSelectorPopupFrameTemplateMixin.OnShow(self);
 	self.BorderBox.IconSelectorEditBox:SetFocus();
-	print("DoesTemplateExist", DoesTemplateExist("BackportedSelectorButtonTemplate"))
 	PlaySound(SOUNDKIT.IG_CHARACTER_INFO_OPEN);
 	self:RefreshIconDataProvider();
 	self.BorderBox.IconSelectorEditBox:OnTextChanged();
@@ -116,7 +118,7 @@ function iconSelectorFrameMixin:RefreshIconDataProvider(inputText)
 
 	self.iconDataProvider = CreateIndexRangeDataProvider(#dataProviderTable)
 	self:Update()
-	--view:SetDataProvider(dataProvider)
+	--view:SetDataProvider(self.iconDataProvider)
 end
 
 function iconSelectorFrameMixin:GetNumIcons()
@@ -128,6 +130,7 @@ function iconSelectorFrameMixin:GetIconByIndex(index)
 end
 
 function iconSelectorFrameMixin:Update()
+	print("update")
 	-- Determine whether we're selecting a new icon or we are changing one
 	if selectedIconId then
 		local selectionIndex = findSelectionIndexByIconId(selectedIconId)
@@ -222,13 +225,20 @@ function LibSpellIconSelector:Show(iconId, onApply)
 	if not frame then
 		if DoesTemplateExist("IconSelectorPopupFrameTemplate") then
 			frame = CreateFrame("frame", nil, UIParent, "IconSelectorPopupFrameTemplate")
+			Mixin(frame, iconSelectorFrameMixin)
 		else
 			-- use the backported templates and mixins
-			frame = CreateFrame("frame", nil, UIParent, "BackportedIconSelectorPopupFrameTemplate")
+			--frame = CreateFrame("frame", nil, UIParent, "BackportedIconSelectorPopupFrameTemplate")
+			frame = Data.Templates.IconSelectorPopupFrameTemplate(UIParent)
+			if frame.OnEvent then
+				frame:SetScript("OnEvent", frame.OnEvent)
+			end
+			Mixin(frame, iconSelectorFrameMixin)
+			frame:OnLoad()
 		end
 
 		frame:Hide()
-		Mixin(frame, iconSelectorFrameMixin)
+		
 
 		frame.BorderBox.EditBoxHeaderText:SetText("filter by spell id or name")
 		frame.BorderBox.DedupCheckbox = CreateFrame("CheckButton", nil, frame.BorderBox, "UICheckButtonTemplate")
