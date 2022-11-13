@@ -96,13 +96,10 @@ function IconSelectorPopupFrameTemplateMixin:SetIconFromMouse()
 end
 
 function IconSelectorPopupFrameTemplateMixin:SetSelectedIconText()
-	print("1")
 	if ( self:GetSelectedIndex() ) then
-		print("2")
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CURRENT);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_CLICK);
 	else
-		print("3")
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CUSTOM);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_NOTINLIST);
 	end

@@ -130,7 +130,6 @@ function iconSelectorFrameMixin:GetIconByIndex(index)
 end
 
 function iconSelectorFrameMixin:Update()
-	print("update")
 	-- Determine whether we're selecting a new icon or we are changing one
 	if selectedIconId then
 		local selectionIndex = findSelectionIndexByIconId(selectedIconId)
