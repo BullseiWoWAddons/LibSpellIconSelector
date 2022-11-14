@@ -284,9 +284,8 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEnterPressed", inputChanged);
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEscapePressed", function(self) inputChanged(self) self:ClearFocus() end );
 
+		
 
-		frame:Raise()
-		frame:SetFrameStrata("HIGH")
 		frame:SetMovable(true)
 		frame:EnableMouse(true)
 		frame:RegisterForDrag("LeftButton")
@@ -301,7 +300,9 @@ function LibSpellIconSelector:Show(iconId, onApply)
 
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER")
+		frame:SetFrameStrata("FULLSCREEN_DIALOG")
 	end
+	frame:SetToplevel(true)
 	frame.BorderBox.DedupCheckbox:SetChecked(true)
 	deduplicate = true
 	frame.BorderBox.IconSelectorEditBox:SetText("")
