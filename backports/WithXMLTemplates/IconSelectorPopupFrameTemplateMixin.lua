@@ -1,11 +1,6 @@
  
 BackportedIconSelectorPopupFrameTemplateMixin = {};
 
-IconSelectorPopupFrameModes = EnumUtil.MakeEnum(
-	"New",
-	"Edit"
-);
-
 local ValidIconSelectorCursorTypes = {
 	"item",
 	"spell",
