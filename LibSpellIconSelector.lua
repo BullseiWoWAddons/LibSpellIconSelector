@@ -159,10 +159,6 @@ function iconSelectorFrameMixin:OkayButton_OnClick()
 		local selectedIndex = self.IconSelector:GetSelectedIndex()
 		onApplyF(dataProviderTable[selectedIndex])
 	end
-
-
-	local index = 1
-	local iconTexture = self.BorderBox.SelectedIconArea.SelectedIconButton:GetIconTexture();
 end
 
 local function filterBySpellName(name)
