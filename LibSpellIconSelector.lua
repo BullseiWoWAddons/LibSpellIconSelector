@@ -1,7 +1,7 @@
 local AddonName, Data = ...
 
 
-local MAJOR, MINOR = "LibSpellIconSelector", 1
+local MAJOR, MINOR = "LibSpellIconSelector", 2
 local LibSpellIconSelector = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not LibSpellIconSelector then return end
