@@ -17,6 +17,8 @@
 		"GameFontHighlightSmall",
 		"GameFontDisableSmall",
 		"DoesAncestryInclude",
-		"IconDataProviderIconType"
+		"IconDataProviderIconType",
+		"MACRO_POPUP_CHOOSE_ICON",
+		"ICON_SELECTION_DRAG"
 	]
 }
