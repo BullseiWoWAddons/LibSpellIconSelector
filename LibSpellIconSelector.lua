@@ -144,7 +144,11 @@ function iconSelectorFrameMixin:Update()
 	self.IconSelector:SetSelectionsDataProvider(getSelection, getNumSelections);
 	self.IconSelector:ScrollToSelectedIndex();
 
-	self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
+
+	if self.BorderBox.SelectedIconArea.SelectedIconButton.SetSelectedTexture then
+		self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
+	end
+
 	self:SetSelectedIconText();
 end
 
@@ -233,7 +237,7 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		end
 
 		frame:Hide()
-		
+
 
 		frame.BorderBox.EditBoxHeaderText:SetText("filter by spell id or name")
 		frame.BorderBox.DedupCheckbox = CreateFrame("CheckButton", nil, frame.BorderBox, "UICheckButtonTemplate")
@@ -280,7 +284,7 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEnterPressed", inputChanged);
 		frame.BorderBox.IconSelectorEditBox:SetScript("OnEscapePressed", function(self) inputChanged(self) self:ClearFocus() end );
 
-		
+
 
 		frame:SetMovable(true)
 		frame:EnableMouse(true)

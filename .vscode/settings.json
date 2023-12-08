@@ -1,0 +1,16 @@
+{
+	"Lua.diagnostics.globals": [
+		"IconSelectorPopupFrameTemplateMixin",
+		"CreateIndexRangeDataProvider",
+		"GenerateClosure",
+		"ScrollUtil",
+		"CreateScrollBoxListGridView",
+		"ScrollBoxConstants",
+		"GameFontNormal",
+		"SelectionFrameCancelButton_OnClick",
+		"CANCEL",
+		"SelectionFrameOkayButton_OnClick",
+		"OKAY",
+		"NineSliceLayouts"
+	]
+}
