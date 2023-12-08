@@ -231,6 +231,8 @@ function LibSpellIconSelector:Show(iconId, onApply)
 
 			if frame.BorderBox.IconTypeDropDown then
 				frame.BorderBox.IconTypeDropDown:Hide()
+				frame.BorderBox.IconTypeDropDown.Show = function(self) return end
+				frame.BorderBox.IconTypeDropDown.SetShown = function(self) return end
 			end
 		else
 			-- use the backported templates and mixins
