@@ -97,7 +97,10 @@ function iconSelectorFrameMixin:OnShow()
 		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(icon);
 
 		-- Index is not yet set, but we know if an icon in IconSelector was selected it was in the list, so set directly.
-		self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture:SetShown(false);
+
+		if self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture then
+			self.BorderBox.SelectedIconArea.SelectedIconButton.SelectedTexture:SetShown(false);
+		end
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CURRENT);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_CLICK);
 	end
