@@ -228,6 +228,10 @@ function LibSpellIconSelector:Show(iconId, onApply)
 		if DoesTemplateExist("IconSelectorPopupFrameTemplate") then
 			frame = CreateFrame("frame", nil, UIParent, "IconSelectorPopupFrameTemplate")
 			Mixin(frame, iconSelectorFrameMixin)
+
+			if self.BorderBox.IconTypeDropDown then
+				self.BorderBox.IconTypeDropDown:Hide()
+			end
 		else
 			-- use the backported templates and mixins
 			--frame = CreateFrame("frame", nil, UIParent, "BackportedIconSelectorPopupFrameTemplate")
