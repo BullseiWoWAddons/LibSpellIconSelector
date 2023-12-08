@@ -11,6 +11,12 @@
 		"CANCEL",
 		"SelectionFrameOkayButton_OnClick",
 		"OKAY",
-		"NineSliceLayouts"
+		"NineSliceLayouts",
+		"EnumUtil",
+		"IconDataProvider_GetAllIconTypes",
+		"GameFontHighlightSmall",
+		"GameFontDisableSmall",
+		"DoesAncestryInclude",
+		"IconDataProviderIconType"
 	]
 }

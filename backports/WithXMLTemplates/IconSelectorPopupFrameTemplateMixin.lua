@@ -9,6 +9,36 @@ local ValidIconSelectorCursorTypes = {
 	"macro"
 };
 
+IconSelectorPopupFrameModes = EnumUtil.MakeEnum(
+	"New",
+	"Edit"
+);
+
+IconSelectorPopupFrameIconFilterTypes = EnumUtil.MakeEnum(
+	"All",
+	"Spell",
+	"Item"
+);
+
+local ValidIconSelectorCursorTypes = {
+	"item",
+	"spell",
+	"mount",
+	"battlepet",
+	"macro"
+};
+
+local function IconSelectorPopupFrame_IconFilterToIconTypes(filter)
+	if (filter == IconSelectorPopupFrameIconFilterTypes.All) then
+		return IconDataProvider_GetAllIconTypes();
+	elseif (filter == IconSelectorPopupFrameIconFilterTypes.Spell) then
+		return { IconDataProviderIconType.Spell };
+	elseif (filter == IconSelectorPopupFrameIconFilterTypes.Item) then
+		return { IconDataProviderIconType.Item };
+	end
+	return nil;
+end
+
 local IconSelectorPopupFramesShown = 0;
 
 function BackportedIconSelectorPopupFrameTemplateMixin:OnLoad()
@@ -16,7 +46,7 @@ function BackportedIconSelectorPopupFrameTemplateMixin:OnLoad()
 		button:SetIconTexture(icon);
 	end
 	self.IconSelector:SetSetupCallback(IconButtonInitializer);
-	self.IconSelector:AdjustScrollBarOffsets(0, 18, -1);
+	self.IconSelector:AdjustScrollBarOffsets(-14, -4, 6);
 
 	self.BorderBox.OkayButton:SetScript("OnClick", function()
 		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK);
@@ -29,19 +59,45 @@ function BackportedIconSelectorPopupFrameTemplateMixin:OnLoad()
 	end);
 
 	self.BorderBox.EditBoxHeaderText:SetText(self.editBoxHeaderText);
+
+	-- Icon Filter Dropdown
+	local function IconFilterTypeNameTranslation(enumValue)
+		for key, value in pairs(IconSelectorPopupFrameIconFilterTypes) do
+			if value == enumValue then
+				return _G["ICON_FILTER_" .. strupper(key)];
+			end
+		end
+	end
+
+	local function IconFilterTypeSelectedCallback(value, isUserInput)
+		self:SetIconFilter(value);
+	end
+
+	self.BorderBox.IconTypeDropDown:SetControlWidth(125);
+	self.BorderBox.IconTypeDropDown:SetTextJustifyH("LEFT");
+	self.BorderBox.IconTypeDropDown:SetEnum(IconSelectorPopupFrameIconFilterTypes, IconFilterTypeNameTranslation);
+	self.BorderBox.IconTypeDropDown:SetSelectedValue(IconSelectorPopupFrameIconFilterTypes.All);
+	self.BorderBox.IconTypeDropDown:SetOptionSelectedCallback(IconFilterTypeSelectedCallback);
 end
 
 -- Usually overridden by inheriting frame.
 function BackportedIconSelectorPopupFrameTemplateMixin:OnShow()
 	IconSelectorPopupFramesShown = IconSelectorPopupFramesShown + 1;
 
+	self:RegisterEvent("CURSOR_CHANGED");
+	self:RegisterEvent("GLOBAL_MOUSE_UP");
+
 	self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconSelector(self);
 	self.BorderBox.IconSelectorEditBox:SetIconSelector(self);
+
+	self:UpdateStateFromCursorType();
 end
 
 -- Usually overridden by inheriting frame.
 function BackportedIconSelectorPopupFrameTemplateMixin:OnHide()
 	IconSelectorPopupFramesShown = IconSelectorPopupFramesShown - 1;
+	self:UnregisterEvent("CURSOR_CHANGED");
+	self:UnregisterEvent("GLOBAL_MOUSE_UP");
 end
 
 -- Usually overridden by inheriting frame.
@@ -49,6 +105,27 @@ function BackportedIconSelectorPopupFrameTemplateMixin:Update()
 end
 
 function BackportedIconSelectorPopupFrameTemplateMixin:OnEvent(event, ...)
+	if ( event == "CURSOR_CHANGED" ) then
+		self:UpdateStateFromCursorType();
+	elseif ( event == "GLOBAL_MOUSE_UP" and DoesAncestryInclude(self, GetMouseFocus())) then
+		self:SetIconFromMouse();
+	end
+end
+
+function BackportedIconSelectorPopupFrameTemplateMixin:UpdateStateFromCursorType()
+	local cursorType = GetCursorInfo();
+	local isValidCursorType = false;
+	for _, validType in ipairs(ValidIconSelectorCursorTypes) do
+		if ( cursorType == validType ) then
+			isValidCursorType = true;
+			break;
+		end
+	end
+
+	self.BorderBox.IconDragArea:SetShown(isValidCursorType);
+	self.BorderBox.IconSelectionText:SetShown(not isValidCursorType);
+	self.BorderBox.IconTypeDropDown:SetShown(not isValidCursorType);
+	self.IconSelector:SetShown(not isValidCursorType);
 end
 
 function BackportedIconSelectorPopupFrameTemplateMixin:SetIconFromMouse()
@@ -76,7 +153,6 @@ function BackportedIconSelectorPopupFrameTemplateMixin:SetIconFromMouse()
 
 			if ( icon ) then
 				self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(icon);
-				self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
 			end
 
 			self:SetSelectedIconText();
@@ -87,11 +163,11 @@ end
 
 function BackportedIconSelectorPopupFrameTemplateMixin:SetSelectedIconText()
 	if ( self:GetSelectedIndex() ) then
-		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CURRENT);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_CLICK);
+		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetFontObject(GameFontHighlightSmall);
 	else
-		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconHeader:SetText(ICON_SELECTION_TITLE_CUSTOM);
 		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetText(ICON_SELECTION_NOTINLIST);
+		self.BorderBox.SelectedIconArea.SelectedIconText.SelectedIconDescription:SetFontObject(GameFontDisableSmall);
 	end
 
 	self.BorderBox.SelectedIconArea.SelectedIconText:Layout();
@@ -105,6 +181,22 @@ end
 -- Usually overridden by inheriting frame.
 function BackportedIconSelectorPopupFrameTemplateMixin:CancelButton_OnClick()
 	self:Hide();
+end
+
+function BackportedIconSelectorPopupFrameTemplateMixin:SetIconFilter(iconFilter)
+	if (self.iconFilter == iconFilter) then
+		return;
+	end
+
+	self.iconFilter = iconFilter;
+	local iconTypes = IconSelectorPopupFrame_IconFilterToIconTypes(self.iconFilter);
+	self.iconDataProvider:SetIconTypes(iconTypes);
+	self.IconSelector:UpdateSelections();
+	self:ReevaluateSelectedIcon();
+end
+
+function BackportedIconSelectorPopupFrameTemplateMixin:GetIconFilter()
+	return self.iconFilter;
 end
 
 function BackportedIconSelectorPopupFrameTemplateMixin:GetIconByIndex(index)
@@ -121,6 +213,12 @@ end
 
 function BackportedIconSelectorPopupFrameTemplateMixin:GetSelectedIndex()
 	return self.IconSelector:GetSelectedIndex();
+end
+
+function BackportedIconSelectorPopupFrameTemplateMixin:ReevaluateSelectedIcon()
+	local texture = self.BorderBox.SelectedIconArea.SelectedIconButton:GetIconTexture();
+	self.IconSelector:SetSelectedIndex(self:GetIndexOfIcon(texture));
+	self:SetSelectedIconText();
 end
 
 function IsAnyIconSelectorPopupFrameShown()
