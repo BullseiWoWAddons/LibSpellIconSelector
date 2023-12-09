@@ -148,9 +148,9 @@ function iconSelectorFrameMixin:Update()
 	self.IconSelector:ScrollToSelectedIndex();
 
 
-	if self.BorderBox.SelectedIconArea.SelectedIconButton.SetSelectedTexture then
-		self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
-	end
+	-- if self.BorderBox.SelectedIconArea.SelectedIconButton.SetSelectedTexture then
+	-- 	self.BorderBox.SelectedIconArea.SelectedIconButton:SetSelectedTexture();
+	-- end
 
 	self:SetSelectedIconText();
 end
