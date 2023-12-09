@@ -15,7 +15,7 @@ local selectedIconId
 local onApplyF
 local deduplicate
 
-local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or BackportedIconSelectorPopupFrameTemplateMixin or Data.Mixins.BackportedIconSelectorPopupFrameTemplateMixin
+local IconSelectorPopupFrameTemplateMixin = IconSelectorPopupFrameTemplateMixin or Data.Mixins.BackportedIconSelectorPopupFrameTemplateMixin
 
 local function deduplicateIcons(t)
 	local foundIcons = {}
