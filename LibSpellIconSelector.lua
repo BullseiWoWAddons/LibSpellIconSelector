@@ -25,7 +25,7 @@ local function deduplicateIcons(t)
 	local deduplicatedTable = {}
 	for i = 1, #t do
 		local spell = t[i]
-		local spellIcon = spell.iconID
+		local spellIcon = spell.icon
 		if not foundIcons[spellIcon] then
 			table.insert(deduplicatedTable, spell)
 			foundIcons[spellIcon] = true
@@ -37,7 +37,7 @@ end
 local function findSpellByIconId(t, iconId)
 	for i = 1, #t do
 		local spell = t[i]
-		local spellIcon = spell.iconID
+		local spellIcon = spell.icon
 		if spellIcon == iconId then
 			return spell
 		end
@@ -47,11 +47,14 @@ end
 local function parseSpellInfo(spellId)
 	if C_Spell and C_Spell.GetSpellInfo then
 		local spellInfo = C_Spell.GetSpellInfo(spellId)
+		if not spellInfo then return end
+		if not spellInfo.iconID then return end
+		spellInfo.icon = spellInfo.iconID
 		return spellInfo
 	else
 		local name, rank, iconID = GetSpellInfo(spellId)
 		if not name or name == "" or not iconID then return end
-		return {name = name, spellId = spellId, iconID = iconID}
+		return {name = name, spellId = spellId, icon = iconID}
 	end
 end
 
@@ -76,7 +79,7 @@ end
 
 local function findSelectionIndexByIconId(iconId)
 	for i = 1, #dataProviderTable do
-		if iconId == dataProviderTable[i].iconID then
+		if iconId == dataProviderTable[i].icon then
 			return i
 		end
 	end
@@ -137,7 +140,7 @@ function iconSelectorFrameMixin:GetNumIcons()
 end
 
 function iconSelectorFrameMixin:GetIconByIndex(index)
-	return dataProviderTable[index].iconID
+	return dataProviderTable[index].icon
 end
 
 function iconSelectorFrameMixin:Update()
@@ -146,7 +149,7 @@ function iconSelectorFrameMixin:Update()
 		local selectionIndex = findSelectionIndexByIconId(selectedIconId)
 		if selectionIndex then
 			self.IconSelector:SetSelectedIndex(selectionIndex);
-			self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(dataProviderTable[selectionIndex].iconID);
+			self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(dataProviderTable[selectionIndex].icon);
 		end
 	end
 
@@ -273,7 +276,7 @@ function LibSpellIconSelector:Show(iconId, onApply)
 				local spell = dataProviderTable[selectionIndex]
 				local spellId = spell.spellId
 				local spellname = spell.name
-				local iconID = spell.iconID
+				local iconID = spell.icon
 				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
 				GameTooltip:AddLine("SpellId: "..tostring(spellId), 1, 1, 1)
 				GameTooltip:AddLine("Spell name: "..spellname, 1, 1, 1)
