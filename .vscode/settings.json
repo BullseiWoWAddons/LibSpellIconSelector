@@ -19,6 +19,20 @@
 		"DoesAncestryInclude",
 		"IconDataProviderIconType",
 		"MACRO_POPUP_CHOOSE_ICON",
-		"ICON_SELECTION_DRAG"
-	]
+		"ICON_SELECTION_DRAG",
+		"SOUNDKIT"
+	],
+	"Lua.runtime.version": "Lua 5.1",
+	"Lua.runtime.builtin": {
+		"basic": "disable",
+		"debug": "disable",
+		"io": "disable",
+		"math": "disable",
+		"os": "disable",
+		"package": "disable",
+		"string": "disable",
+		"table": "disable",
+		"utf8": "disable"
+	},
+	"Lua.workspace.library": ["~/.vscode-server/extensions/ketho.wow-api-0.17.4/Annotations"]
 }

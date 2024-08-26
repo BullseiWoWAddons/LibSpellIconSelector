@@ -1,8 +1,11 @@
 local AddonName, Data = ...
 
 
-local MAJOR, MINOR = "LibSpellIconSelector", 2
+local MAJOR, MINOR = "LibSpellIconSelector", 3
 local LibSpellIconSelector = LibStub:NewLibrary(MAJOR, MINOR)
+
+local C_Spell = C_Spell
+local GetSpellInfo = GetSpellInfo
 
 if not LibSpellIconSelector then return end
 
@@ -22,7 +25,7 @@ local function deduplicateIcons(t)
 	local deduplicatedTable = {}
 	for i = 1, #t do
 		local spell = t[i]
-		local spellIcon = spell.icon
+		local spellIcon = spell.iconID
 		if not foundIcons[spellIcon] then
 			table.insert(deduplicatedTable, spell)
 			foundIcons[spellIcon] = true
@@ -34,7 +37,7 @@ end
 local function findSpellByIconId(t, iconId)
 	for i = 1, #t do
 		local spell = t[i]
-		local spellIcon = spell.icon
+		local spellIcon = spell.iconID
 		if spellIcon == iconId then
 			return spell
 		end
@@ -42,9 +45,14 @@ local function findSpellByIconId(t, iconId)
 end
 
 local function parseSpellInfo(spellId)
-   local name, rank, icon = GetSpellInfo(spellId)
-   if not name or name == "" or not icon then return end
-   return {name = name, spellId = spellId, icon = icon}
+	if C_Spell and C_Spell.GetSpellInfo then
+		local spellInfo = C_Spell.GetSpellInfo(spellId)
+		return spellInfo
+	else
+		local name, rank, iconID = GetSpellInfo(spellId)
+		if not name or name == "" or not iconID then return end
+		return {name = name, spellId = spellId, iconID = iconID}
+	end
 end
 
 
@@ -68,7 +76,7 @@ end
 
 local function findSelectionIndexByIconId(iconId)
 	for i = 1, #dataProviderTable do
-		if iconId == dataProviderTable[i].icon then
+		if iconId == dataProviderTable[i].iconID then
 			return i
 		end
 	end
@@ -93,8 +101,8 @@ function iconSelectorFrameMixin:OnShow()
 	self:RefreshIconDataProvider();
 	self.BorderBox.IconSelectorEditBox:OnTextChanged();
 
-	local function OnIconSelected(selectionIndex, icon)
-		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(icon);
+	local function OnIconSelected(selectionIndex, iconID)
+		self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(iconID);
 
 		-- Index is not yet set, but we know if an icon in IconSelector was selected it was in the list, so set directly.
 
@@ -129,7 +137,7 @@ function iconSelectorFrameMixin:GetNumIcons()
 end
 
 function iconSelectorFrameMixin:GetIconByIndex(index)
-	return dataProviderTable[index].icon
+	return dataProviderTable[index].iconID
 end
 
 function iconSelectorFrameMixin:Update()
@@ -138,7 +146,7 @@ function iconSelectorFrameMixin:Update()
 		local selectionIndex = findSelectionIndexByIconId(selectedIconId)
 		if selectionIndex then
 			self.IconSelector:SetSelectedIndex(selectionIndex);
-			self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(dataProviderTable[selectionIndex].icon);
+			self.BorderBox.SelectedIconArea.SelectedIconButton:SetIconTexture(dataProviderTable[selectionIndex].iconID);
 		end
 	end
 
@@ -259,17 +267,17 @@ function LibSpellIconSelector:Show(iconId, onApply)
 			frame:RefreshIconDataProvider()
 		end)
 
-		local function IconButtonInitializer(button, selectionIndex, icon)
+		local function IconButtonInitializer(button, selectionIndex, iconID)
 			button.OnEnter = function(self)
 				local selectionIndex = self:GetSelectionIndex()
 				local spell = dataProviderTable[selectionIndex]
 				local spellId = spell.spellId
 				local spellname = spell.name
-				local icon = spell.icon
+				local iconID = spell.iconID
 				GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT", 0, 0)
 				GameTooltip:AddLine("SpellId: "..tostring(spellId), 1, 1, 1)
 				GameTooltip:AddLine("Spell name: "..spellname, 1, 1, 1)
-				GameTooltip:AddLine("Icon ID: "..tostring(icon), 1, 1, 1)
+				GameTooltip:AddLine("Icon ID: "..tostring(iconID), 1, 1, 1)
 				GameTooltip:Show()
 			end
 
