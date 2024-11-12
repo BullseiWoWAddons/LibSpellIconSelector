@@ -197,8 +197,8 @@ local function filterBySpellId(spellID)
 	local oneFound = false
  	for i = 1, #allSpells do
 		local spell = allSpells[i]
-		local spellID = tostring(spell.spellID)
-		local found = strfind(spellID, tostring(spellID) or "")
+		local spellId = tostring(spell.spellID)
+		local found = strfind(spellID, tostring(spellId) or "")
 		if found then
 			table.insert(filteredSpells, spell)
 			oneFound = true
